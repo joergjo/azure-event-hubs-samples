@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.Azure.EventHubs.Processor;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,19 +13,22 @@ namespace ReceiveWorker
     {
         private readonly EventProcessorHost _eventProcessorHost;
         private readonly IEventProcessorFactory _eventProcessorFactory;
+        private readonly TelemetryClient _telemetryClient;
         private readonly ILogger _logger;
         private readonly ReceiveJournal _journal;
 
-        private const int HeartBeatMilliSeconds = 10_000;
+        private const int HeartBeatMilliseconds = 10_000;
 
         public Worker(
             IEventProcessorFactory eventProcessorFactory,
             ReceiveJournal journal,
-            ILogger<Worker> logger, 
+            TelemetryClient telemetryClient,
+            ILogger<Worker> logger,
             IOptionsMonitor<SimpleEventProcessorOptions> optionsAccessor)
         {
             _eventProcessorFactory = eventProcessorFactory;
             _journal = journal;
+            _telemetryClient = telemetryClient;
             _logger = logger;
             var options = optionsAccessor.CurrentValue;
 
@@ -48,8 +52,17 @@ namespace ReceiveWorker
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at {Time}.", DateTimeOffset.UtcNow);
-                _logger.LogInformation(_journal.GetStatistics());
-                await Task.Delay(HeartBeatMilliSeconds, cancellationToken);
+                var metric = _telemetryClient.GetMetric("EventProcessorHost", "Partition");
+                _journal.EnumeratePartitions((partitionId, count) =>
+                {
+                    if (!metric.TrackValue(count, partitionId))
+                    {
+                        _logger.LogWarning(
+                            "Data series or dimension cap was reached for metric 'EventProcessorHost' or dimension 'Partition'");
+                    }
+                    _logger.LogDebug("PartitionID '{PartitionId}': {Count} messages received.", partitionId, count);
+                });
+                await Task.Delay(HeartBeatMilliseconds, cancellationToken);
             }
         }
 

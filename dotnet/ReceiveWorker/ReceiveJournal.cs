@@ -1,18 +1,16 @@
-﻿using System.Collections.Concurrent;
-using System.Text;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace ReceiveWorker
 {
     public class ReceiveJournal : ConcurrentDictionary<string, int>
     {
-        public string GetStatistics()
+        public void EnumeratePartitions(Action<string, int> enumerateAction)
         {
-            var stringBuilder = new StringBuilder();
-            foreach (var key in Keys)
+            foreach (string partitionId in Keys)
             {
-                stringBuilder.AppendLine($"PartitionID '{key}' snapshot: {this[key]} messages received.");
+                enumerateAction(partitionId, this[partitionId]);
             }
-            return stringBuilder.ToString();
         }
     }
 }

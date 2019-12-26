@@ -47,7 +47,7 @@ namespace ReceiveWorker
         {
             foreach (var message in messages)
             {
-                _logger.LogDebug("Message received on partition '{PartitionId}'.", context.PartitionId);
+                _logger.LogTrace("Message received on partition '{PartitionId}'.", context.PartitionId);
                 _journal.AddOrUpdate(context.PartitionId, 1, (key, val) => val + 1);
             }
             return context.CheckpointAsync();

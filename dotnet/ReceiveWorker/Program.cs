@@ -18,6 +18,7 @@ namespace ReceiveWorker
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<Worker>();
+                    services.AddApplicationInsightsTelemetryWorkerService();
                     services.AddSingleton<IEventProcessorFactory, SimpleEventProcessorFactory>();
                     services.AddSingleton(new ReceiveJournal());
                     services.AddOptions<HostOptions>().Configure(
