@@ -52,7 +52,7 @@ namespace ReceiveWorker
             while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at {Time}.", DateTimeOffset.UtcNow);
-                var metric = _telemetryClient.GetMetric("EventProcessorHost", "Partition");
+                var metric = _telemetryClient.GetMetric("Messages Processed", "Partition");
                 _journal.EnumeratePartitions((partitionId, count) =>
                 {
                     if (!metric.TrackValue(count, partitionId))
