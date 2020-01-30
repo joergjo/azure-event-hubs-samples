@@ -58,7 +58,7 @@ namespace ReceiveWorker
                     if (!metric.TrackValue(count, partitionId))
                     {
                         _logger.LogWarning(
-                            "Data series or dimension cap was reached for metric 'EventProcessorHost' or dimension 'Partition'");
+                            "Data series or dimension cap was reached for metric 'Messages Processed' or dimension 'Partition'");
                     }
                     _logger.LogDebug("PartitionID '{PartitionId}': {Count} messages received.", partitionId, count);
                 });
