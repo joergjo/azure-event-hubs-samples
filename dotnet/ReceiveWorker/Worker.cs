@@ -68,7 +68,7 @@ namespace ReceiveWorker
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Worker stopping at {Time}.", DateTimeOffset.UtcNow);
+            _logger.LogInformation("Worker stopping at {Time:u} (UTC).", DateTimeOffset.UtcNow);
             await base.StopAsync(cancellationToken);
             await _eventProcessorHost.UnregisterEventProcessorAsync();
         }
