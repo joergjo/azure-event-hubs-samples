@@ -34,7 +34,7 @@ namespace ReceiveWorker
                             }
                             if (string.IsNullOrEmpty(options.StorageContainer))
                             {
-                                options.StorageContainer = nameof(ReceiveWorker).ToLower();
+                                options.StorageContainer = nameof(ReceiveWorker).ToLowerInvariant();
                             }
                         })
                         .ValidateDataAnnotations();
